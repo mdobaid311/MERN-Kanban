@@ -26,11 +26,21 @@ const AppLayout = () => {
   }, [navigate]);
 
   return loading ? (
-    <Loading />
+    <Loading fullHeight />
   ) : (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+      }}
+    >
       <Sidebar />
-      <Box sx={{ flexGrow: 1, p: 1, width: "max-content" }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          p: 1,
+          width: "max-content",
+        }}
+      >
         <Outlet />
       </Box>
     </Box>
