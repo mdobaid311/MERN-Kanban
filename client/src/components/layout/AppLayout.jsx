@@ -5,10 +5,11 @@ import { useDispatch } from "react-redux";
 import authUtils from "../../utils/authUtils";
 import Loading from "../common/Loading";
 import Sidebar from "../common/Sidebar";
-// import { setUser } from '../../redux/features/userSlice'
+import { setUser } from "../../redux/features/userSlice";
 
 const AppLayout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ const AppLayout = () => {
       if (!user) {
         navigate("/login");
       } else {
+        dispatch(setUser(user));
         setLoading(false);
       }
     };
