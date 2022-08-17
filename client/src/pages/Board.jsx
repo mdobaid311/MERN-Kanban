@@ -1,6 +1,5 @@
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
-import StarOutlined from "@mui/icons-material/StarOutlined";
 import StarOutlinedIcon from "@mui/icons-material/StarOutlined";
 import { Box, IconButton, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -30,67 +29,41 @@ const Board = () => {
 
   useEffect(() => {
     const getBoard = async () => {
-      try {
-        const res = await boardApi.getOne(boardId);
-        setTitle(res.title);
-        setDescription(res.description);
-        setSections(res.sections);
-        setIsFavourite(res.favourite);
-        setIcon(res.icon);
-        console.log(res);
-      } catch (error) {
-        alert(error);
-      }
+      // try {
+      const res = await boardApi.getOne(boardId);
+      setTitle(res.title);
+      setDescription(res.description);
+      setSections(res.sections);
+      setIsFavourite(res.favourite);
+      setIcon(res.icon);
+      // } catch (err) {
+      // alert(err);
+      // }
     };
     getBoard();
   }, [boardId]);
 
-  const addFavourite = async () => {
-    try {
-      const board = await boardApi.update(boardId, { favourite: !isFavourite });
-      let newFavouriteList = [...favouriteList];
-      if (isFavourite) {
-        newFavouriteList = newFavouriteList.filter((e) => e.id !== boardId);
-      } else {
-        newFavouriteList.unshift(board);
-      }
-      dispatch(setFavouriteList(newFavouriteList));
-      setIsFavourite(!isFavourite);
-    } catch (err) {
-      alert(err);
-    }
-  };
-
-  const deleteBoard = async () => {
-    try {
-      await boardApi.delete(boardId);
-      if (isFavourite) {
-        const newFavouriteList = favouriteList.filter((e) => e.id !== boardId);
-        dispatch(setFavouriteList(newFavouriteList));
-      }
-
-      const newList = boards.filter((e) => e.id !== boardId);
-      if (newList.length === 0) {
-        navigate("/boards");
-      } else {
-        navigate(`/boards/${newList[0].id}`);
-      }
-      dispatch(setBoards(newList));
-    } catch (err) {
-      alert(err);
-    }
-  };
-
   const onIconChange = async (newIcon) => {
     let temp = [...boards];
-    const index = temp.findIndex((el) => el.id === boardId);
+    const index = temp.findIndex((e) => e.id === boardId);
     temp[index] = { ...temp[index], icon: newIcon };
+
+    if (isFavourite) {
+      let tempFavourite = [...favouriteList];
+      const favouriteIndex = tempFavourite.findIndex((e) => e.id === boardId);
+      tempFavourite[favouriteIndex] = {
+        ...tempFavourite[favouriteIndex],
+        icon: newIcon,
+      };
+      dispatch(setFavouriteList(tempFavourite));
+    }
+
     setIcon(newIcon);
     dispatch(setBoards(temp));
     try {
       await boardApi.update(boardId, { icon: newIcon });
-    } catch (error) {
-      alert(error);
+    } catch (err) {
+      alert(err);
     }
   };
 
@@ -135,6 +108,42 @@ const Board = () => {
         alert(err);
       }
     }, timeout);
+  };
+
+  const addFavourite = async () => {
+    try {
+      const board = await boardApi.update(boardId, { favourite: !isFavourite });
+      let newFavouriteList = [...favouriteList];
+      if (isFavourite) {
+        newFavouriteList = newFavouriteList.filter((e) => e.id !== boardId);
+      } else {
+        newFavouriteList.unshift(board);
+      }
+      dispatch(setFavouriteList(newFavouriteList));
+      setIsFavourite(!isFavourite);
+    } catch (err) {
+      alert(err);
+    }
+  };
+
+  const deleteBoard = async () => {
+    try {
+      await boardApi.delete(boardId);
+      if (isFavourite) {
+        const newFavouriteList = favouriteList.filter((e) => e.id !== boardId);
+        dispatch(setFavouriteList(newFavouriteList));
+      }
+
+      const newList = boards.filter((e) => e.id !== boardId);
+      if (newList.length === 0) {
+        navigate("/boards");
+      } else {
+        navigate(`/boards/${newList[0].id}`);
+      }
+      dispatch(setBoards(newList));
+    } catch (err) {
+      alert(err);
+    }
   };
 
   return (
@@ -199,4 +208,5 @@ const Board = () => {
     </>
   );
 };
+
 export default Board;
