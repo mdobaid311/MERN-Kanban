@@ -54,7 +54,15 @@ const Login = () => {
   };
   return (
     <>
-      <Box component="form" sx={{ mt: 1 }} onSubmit={handleSubmit} noValidate>
+      <Box
+        component="form"
+        sx={{
+          mt: 1,
+          width: "400px",
+        }}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <TextField
           margin="normal"
           required

@@ -12,66 +12,76 @@ const Signup = () => {
   const [confirmPasswordErrText, setConfirmPasswordErrText] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setUsernameErrText('')
-    setPasswordErrText('')
-    setConfirmPasswordErrText('')
+    e.preventDefault();
+    setUsernameErrText("");
+    setPasswordErrText("");
+    setConfirmPasswordErrText("");
 
-    const data = new FormData(e.target)
-    const username = data.get('username').trim()
-    const password = data.get('password').trim()
-    const confirmPassword = data.get('confirmPassword').trim()
+    const data = new FormData(e.target);
+    const username = data.get("username").trim();
+    const password = data.get("password").trim();
+    const confirmPassword = data.get("confirmPassword").trim();
 
-    let err = false
+    let err = false;
 
-    if (username === '') {
-      err = true
-      setUsernameErrText('Please fill this field')
+    if (username === "") {
+      err = true;
+      setUsernameErrText("Please fill this field");
     }
-    if (password === '') {
-      err = true
-      setPasswordErrText('Please fill this field')
+    if (password === "") {
+      err = true;
+      setPasswordErrText("Please fill this field");
     }
-    if (confirmPassword === '') {
-      err = true
-      setConfirmPasswordErrText('Please fill this field')
+    if (confirmPassword === "") {
+      err = true;
+      setConfirmPasswordErrText("Please fill this field");
     }
     if (password !== confirmPassword) {
-      err = true
-      setConfirmPasswordErrText('Confirm password not match')
+      err = true;
+      setConfirmPasswordErrText("Confirm password not match");
     }
 
-    if (err) return
+    if (err) return;
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       const res = await authApi.signup({
-        username, password, confirmPassword
-      })
-      setLoading(false)
-      localStorage.setItem('token', res.token)
-      navigate('/')
+        username,
+        password,
+        confirmPassword,
+      });
+      setLoading(false);
+      localStorage.setItem("token", res.token);
+      navigate("/");
     } catch (err) {
-      const errors = err.data.errors
-      errors.forEach(e => {
-        if (e.param === 'username') {
-          setUsernameErrText(e.msg)
+      const errors = err.data.errors;
+      errors.forEach((e) => {
+        if (e.param === "username") {
+          setUsernameErrText(e.msg);
         }
-        if (e.param === 'password') {
-          setPasswordErrText(e.msg)
+        if (e.param === "password") {
+          setPasswordErrText(e.msg);
         }
-        if (e.param === 'confirmPassword') {
-          setConfirmPasswordErrText(e.msg)
+        if (e.param === "confirmPassword") {
+          setConfirmPasswordErrText(e.msg);
         }
-      })
-      setLoading(false)
+      });
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <>
-      <Box component="form" sx={{ mt: 1 }} onSubmit={handleSubmit} noValidate>
+      <Box
+        component="form"
+        sx={{
+          mt: 1,
+          width: "400px",
+        }}
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <TextField
           margin="normal"
           required
