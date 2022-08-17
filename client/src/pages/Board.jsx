@@ -8,9 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import boardApi from "../api/boardApi";
 import EmojiPicker from "../components/common/EmojiPicker";
-// import Kanban from "../components/common/Kanban";
+import Kanban from "../components/common/Kanban";
 import { setBoards } from "../redux/features/boardSlice";
-// import { setFavouriteList } from "../redux/features/favouriteSlice";
+import { setFavouriteList } from "../redux/features/favouriteSlice";
 
 let timer;
 const timeout = 500;
@@ -26,6 +26,7 @@ const Board = () => {
   const [icon, setIcon] = useState("");
 
   const boards = useSelector((state) => state.board.value);
+  const favouriteList = useSelector((state) => state.favourites.value);
 
   useEffect(() => {
     const getBoard = async () => {
@@ -44,9 +45,41 @@ const Board = () => {
     getBoard();
   }, [boardId]);
 
-  const addFavourite = async () => {};
+  const addFavourite = async () => {
+    try {
+      const board = await boardApi.update(boardId, { favourite: !isFavourite });
+      let newFavouriteList = [...favouriteList];
+      if (isFavourite) {
+        newFavouriteList = newFavouriteList.filter((e) => e.id !== boardId);
+      } else {
+        newFavouriteList.unshift(board);
+      }
+      dispatch(setFavouriteList(newFavouriteList));
+      setIsFavourite(!isFavourite);
+    } catch (err) {
+      alert(err);
+    }
+  };
 
-  const deleteBoard = async () => {};
+  const deleteBoard = async () => {
+    try {
+      await boardApi.delete(boardId);
+      if (isFavourite) {
+        const newFavouriteList = favouriteList.filter((e) => e.id !== boardId);
+        dispatch(setFavouriteList(newFavouriteList));
+      }
+
+      const newList = boards.filter((e) => e.id !== boardId);
+      if (newList.length === 0) {
+        navigate("/boards");
+      } else {
+        navigate(`/boards/${newList[0].id}`);
+      }
+      dispatch(setBoards(newList));
+    } catch (err) {
+      alert(err);
+    }
+  };
 
   const onIconChange = async (newIcon) => {
     let temp = [...boards];
@@ -62,32 +95,47 @@ const Board = () => {
   };
 
   const updateTitle = async (e) => {
-    clearTimeout(timer)
-    const newTitle = e.target.value
-    setTitle(newTitle)
+    clearTimeout(timer);
+    const newTitle = e.target.value;
+    setTitle(newTitle);
 
-    let temp = [...boards]
-    const index = temp.findIndex(e => e.id === boardId)
-    temp[index] = { ...temp[index], title: newTitle }
+    let temp = [...boards];
+    const index = temp.findIndex((e) => e.id === boardId);
+    temp[index] = { ...temp[index], title: newTitle };
 
-    // if (isFavourite) {
-    //   let tempFavourite = [...favouriteList]
-    //   const favouriteIndex = tempFavourite.findIndex(e => e.id === boardId)
-    //   tempFavourite[favouriteIndex] = { ...tempFavourite[favouriteIndex], title: newTitle }
-    //   dispatch(setFavouriteList(tempFavourite))
-    // }
+    if (isFavourite) {
+      let tempFavourite = [...favouriteList];
+      const favouriteIndex = tempFavourite.findIndex((e) => e.id === boardId);
+      tempFavourite[favouriteIndex] = {
+        ...tempFavourite[favouriteIndex],
+        title: newTitle,
+      };
+      dispatch(setFavouriteList(tempFavourite));
+    }
 
-    dispatch(setBoards(temp))
+    dispatch(setBoards(temp));
 
     timer = setTimeout(async () => {
       try {
-        await boardApi.update(boardId, { title: newTitle })
+        await boardApi.update(boardId, { title: newTitle });
       } catch (err) {
-        alert(err)
+        alert(err);
       }
     }, timeout);
-  }
-  const updateDescription = async () => {};
+  };
+
+  const updateDescription = async (e) => {
+    clearTimeout(timer);
+    const newDescription = e.target.value;
+    setDescription(newDescription);
+    timer = setTimeout(async () => {
+      try {
+        await boardApi.update(boardId, { description: newDescription });
+      } catch (err) {
+        alert(err);
+      }
+    }, timeout);
+  };
 
   return (
     <>
@@ -145,7 +193,7 @@ const Board = () => {
         </Box>
         <Box>
           {/* Kanban board */}
-          {/* <Kanban data={sections} boardId={boardId} /> */}
+          <Kanban data={sections} boardId={boardId} />
         </Box>
       </Box>
     </>
